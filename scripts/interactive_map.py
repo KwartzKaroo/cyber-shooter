@@ -1,7 +1,6 @@
-import pygame
 from scripts.constants import GUN_NAMES
 from scripts.gun import Gun
-from scripts.tilemap import Layer, AnimatedLayer
+from scripts.tilemap import Layer
 from scripts.utils import load_all_images, Animation
 
 

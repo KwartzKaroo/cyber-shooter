@@ -1,4 +1,3 @@
-import pygame
 from scripts.character import Character
 
 

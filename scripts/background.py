@@ -1,5 +1,3 @@
-import pygame
-
 from scripts.utils import load_image
 
 
@@ -9,6 +7,7 @@ class Background:
         self.game = game
         self.level = level
 
+        # Initialize
         self.images = {}
 
         # Load data

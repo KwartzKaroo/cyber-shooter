@@ -1,8 +1,7 @@
-import random
-
 import pygame
+import random
 from scripts.body import Body
-from scripts.utils import Animation, Timer, debug_rect
+from scripts.utils import Animation, Timer
 
 
 class Enemy(Body):
