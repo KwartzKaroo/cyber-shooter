@@ -58,7 +58,7 @@ class Level(State):
 
         # Overlay
         self.overlay = load_image('assets/sprites/tilesets/green zone/background/overlay.png')
-        self.overlay.set_alpha(28)
+        self.overlay.set_alpha(18)
 
         # Background
         self.background = Background(game, self)

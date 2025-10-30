@@ -113,6 +113,7 @@ class Character(Body):
         # Emoting
         if self.emoting and self.animations[state].finished:
             self.emoting = False
+            self.actions[self.current_action] = False
 
         # Get the image
         image: pygame.Surface = self.animations[state].get_image()
@@ -254,20 +255,20 @@ class Character(Body):
         self.hand_index = 2
         if pygame.K_w in self.game.held_key_presses:
             self.hand_index = 4
-            if pygame.K_l in self.game.held_key_presses:
+            if pygame.K_k in self.game.held_key_presses:
                 self.hand_index = 3
 
         if pygame.K_s in self.game.held_key_presses:
             self.hand_index = 0
-            if pygame.K_l in self.game.held_key_presses:
+            if pygame.K_k in self.game.held_key_presses:
                 self.hand_index = 1
 
         self.equipped_gun.update(self.gun_position(), self.flip, self.direction, self.hand_index)
 
         # Shooting
-        shoot = pygame.K_k in self.game.key_presses
+        shoot = pygame.K_j in self.game.key_presses
         if self.equipped_gun.automatic:
-            shoot = pygame.K_k in self.game.held_key_presses
+            shoot = pygame.K_j in self.game.held_key_presses
 
         if shoot and self.current_action in DOUBLE_STATES:
             self.equipped_gun.shoot(self.direction, self.hand_index, self.level.player_bullets)
@@ -276,7 +277,7 @@ class Character(Body):
         if self.zero_health():
             return
 
-        if pygame.K_o in self.game.key_presses:
+        if pygame.K_x in self.game.key_presses or pygame.K_f in self.game.key_presses:
             for gun in self.level.interactivemap.guns:
                 if self.rect.colliderect(gun):
                     #

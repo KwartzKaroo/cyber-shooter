@@ -53,7 +53,8 @@ class StartScreen(State):
 
         self.buttons['32x32'].draw(self.game.layers[0], (5 * 32, 7 * 32), False)
         if self.buttons['32x32'].click(self.game.mouse_rect, click):
-            print('controls')
+            self.game.clicked = True
+            self.game.change_state('controls')
 
         self.buttons['32x32'].draw(self.game.layers[0], (12 * 32, 7 * 32), False)
         if self.buttons['32x32'].click(self.game.mouse_rect, click):

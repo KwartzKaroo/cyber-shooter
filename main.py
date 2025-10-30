@@ -5,7 +5,7 @@ import time
 from scripts.level import Level
 from scripts.start import StartScreen
 from scripts.select_character import SelectCharacter
-from scripts.pause import PauseMenu
+from scripts.pause import PauseMenu, Controls
 from scripts.select_level import SelectLevel
 
 
@@ -34,11 +34,13 @@ class Game:
 
         # States
         self.state = 'start'
+        self.prev_state = 'start'
         self.__states = {
             'start': StartScreen(self),
             'select character': SelectCharacter(self),
             'select level': SelectLevel(self),
             'pause': PauseMenu(self),
+            'controls': Controls(self),
             'level': Level(self)
         }
 
@@ -107,6 +109,10 @@ class Game:
 
     def set_level(self):
         self.__states['level'] = Level(self)
+
+    def change_state(self, new_state):
+        self.prev_state = self.state
+        self.state = new_state
 
     def quit(self):
         self.__running = False
