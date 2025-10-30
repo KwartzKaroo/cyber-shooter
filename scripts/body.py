@@ -51,12 +51,12 @@ class Body(pygame.sprite.Sprite):
         for tile in self.level.tilemap.get_collision_tiles(self.rect):
             # Vertical collision
             if tile.rect.colliderect(self.pos[0], self.pos[1] + self.velocity[1], self.rect.w, self.rect.h):
-                self.velocity[1] = 0
                 if self.velocity[1] >= 0:
                     self.rect.bottom = tile.rect.top
                     self.jump_count = 0
                 elif self.velocity[1] < 0:
                     self.rect.top = tile.rect.bottom
+                self.velocity[1] = 0
                 self.pos[1] = self.rect.y
 
             # Left and right collision
@@ -83,7 +83,7 @@ class Body(pygame.sprite.Sprite):
     def boundary_collision(self):
         for boundary in self.level.tilemap.get_boundaries(self.rect):
             if boundary.rect.colliderect(self):
-                self.hp = -1
+                self.hp = 0
 
     def update_position(self):
         self.pos += self.velocity * self.game.delta

@@ -26,7 +26,7 @@ class Game:
         self.mouse_rect = pygame.Rect(0, 0, 4, 4)
 
         # Data
-        self.data = json.loads(open('data/data.json', 'r').read())
+        self.data = json.loads(open('data/game data/data.json', 'r').read())
 
         # For level
         self.level = 1
@@ -39,7 +39,7 @@ class Game:
             'select character': SelectCharacter(self),
             'select level': SelectLevel(self),
             'pause': PauseMenu(self),
-            'level': None
+            'level': Level(self)
         }
 
         # Fonts
@@ -85,7 +85,7 @@ class Game:
 
 
             # Renew surfaces
-            self.layers = {i: pygame.Surface((576, 320), pygame.SRCALPHA) for i in range(5)}
+            self.layers = {i: pygame.Surface((576, 320), pygame.SRCALPHA) for i in range(6)}
 
             # States
             self.__states[self.state].update()
@@ -110,7 +110,7 @@ class Game:
 
     def quit(self):
         self.__running = False
-        open('data/data.json', 'w').write(json.dumps(self.data))
+        open('data/game data/data.json', 'w').write(json.dumps(self.data))
 
 
 if __name__ == '__main__':

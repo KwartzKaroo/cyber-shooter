@@ -32,6 +32,9 @@ class Level(State):
     def __init__(self, game):
         super().__init__(game)
 
+        self.alpha = 305
+        self.phase = True
+
         # Level stuff
         self.scroll = [96, 96]
         self.player_bullets = pygame.sprite.Group()
@@ -52,6 +55,10 @@ class Level(State):
         # Load in the data
         self.data = json.load(open(f'levels/level{self.game.level}.json', 'r'))
         self.tileset = self.data['tileset']
+
+        # Overlay
+        self.overlay = load_image('assets/sprites/tilesets/green zone/background/overlay.png')
+        self.overlay.set_alpha(28)
 
         # Background
         self.background = Background(game, self)
@@ -74,16 +81,19 @@ class Level(State):
         # Bosses
         self.boss = None
 
-        #
         self.level_completed = False
 
     def update(self):
-        # Controls
-        self.controls()
+        # Pause
+        if pygame.K_ESCAPE in self.game.key_presses and not self.game.key_down and not self.phase:
+            self.game.state = 'pause'
+            self.game.key_down = True
 
-        # Layers
-        self.scroll[0] += (self.player.center()[0] - 576 / 2 - self.scroll[0]) / 4 * self.game.delta
-        self.scroll[1] += (self.player.rect.bottom - 320 / 2 - (self.player.rect.h + 64) - self.scroll[1]) / 9 * self.game.delta
+        # Camera
+        if not self.player.zero_health():
+            self.scroll[0] += (self.player.center()[0] - 576 / 2 - self.scroll[0]) / 4 * self.game.delta
+            self.scroll[1] += ((self.player.rect.bottom - 320 / 2 - (self.player.rect.h + 64) - self.scroll[1]) /
+                               max(1, 19 * self.game.delta * self.phase * 0))
 
         if self.scroll[0] < 96:
             self.scroll[0] = 96
@@ -106,6 +116,9 @@ class Level(State):
         # Player
         self.player.update()
 
+        # Overlay
+        self.game.layers[4].blit(self.overlay, (0, 0))
+
         # HUD
         self.ux()
 
@@ -120,28 +133,31 @@ class Level(State):
         if self.player.dead:
             self.game_over()
 
+        # Transition
+        self.transition()
+
     def ux(self):
         # Health bar
         for i in range(math.ceil(self.player.init_hp / 25)):
-            self.game.layers[4].blit(self.images['bars'][1], (20 + i * 32, 20))
+            self.game.layers[5].blit(self.images['bars'][1], (20 + i * 32, 20))
 
         for i in range(math.ceil(self.player.hp / 25)):
-            self.game.layers[4].blit(self.images['bars'][0], (20 + i * 32, 20))
+            self.game.layers[5].blit(self.images['bars'][0], (20 + i * 32, 20))
 
         # Lives
         lives = self.game.fonts[17].render(f'Lives: {self.player.lives}', True, 'white')
-        self.game.layers[4].blit(lives, (576 - 128, 20))
+        self.game.layers[5].blit(lives, (576 - 128, 20))
 
         # Guns
         gun1 = self.player.guns[0]
         text1 = self.game.fonts[15].render(f'{gun1.ammo}/{gun1.mag_size}', True, 'white')
-        self.game.layers[4].blit(gun1.gun_images[1], (22, 48))
-        self.game.layers[4].blit(text1, (22 + 35, -5 + 48))
+        self.game.layers[5].blit(gun1.gun_images[1], (22, 48))
+        self.game.layers[5].blit(text1, (22 + 35, -5 + 48))
 
         gun2 = self.player.guns[1]
         text2 = self.game.fonts[15].render(f'{gun2.ammo}/{gun2.mag_size}', True, 'white')
-        self.game.layers[4].blit(gun2.gun_images[1], (22, 48 + 24))
-        self.game.layers[4].blit(text2, (22 + 35, -5 + 48 + 24))
+        self.game.layers[5].blit(gun2.gun_images[1], (22, 48 + 24))
+        self.game.layers[5].blit(text2, (22 + 35, -5 + 48 + 24))
 
     def level_complete(self):
         self.game.layers[4].blit(self.images['level complete'], (0, 0))
@@ -176,11 +192,14 @@ class Level(State):
             self.game.state = 'select level'
             self.game.clicked = True
 
-    def controls(self):
-        if pygame.K_ESCAPE in self.game.key_presses and not self.game.key_down:
-            self.game.state = 'pause'
-            self.game.key_down = True
-
+    def transition(self):
+        if self.phase:
+            self.alpha -= 1
+            self.blackout_screen.set_alpha(self.alpha)
+            self.game.layers[5].blit(self.blackout_screen, (0, 0))
+            if self.alpha <= 0:
+                self.phase = False
+                self.alpha = 255
 
 class LevelCompleted(State):
     def __init__(self, game):

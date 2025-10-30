@@ -300,10 +300,10 @@ class Editor:
         self.animation_list = ['idle', 'run', 'jump', 'crouch', 'walk']
 
         try:
-            with open(f'data/hand_offsets/{self.character}', 'rb') as file:
+            with open(f'data/hand offsets/{self.character}', 'rb') as file:
                 data = pickle.loads(file.read())
-                self.hand_offsets = data['hand_offsets']
-                self.gun_offsets = data['gun_offsets']
+                self.hand_offsets = data['hand offsets']
+                self.gun_offsets = data['gun offsets']
 
         except (FileNotFoundError, KeyError):
             self.hand_offsets[1] = {}
@@ -324,10 +324,10 @@ class Editor:
                 }
 
     def save(self):
-        with open(f'data/hand_offsets/{self.character}', 'wb') as file:
+        with open(f'data/hand offsets/{self.character}', 'wb') as file:
             data = {
-                'hand_offsets': self.hand_offsets,
-                'gun_offsets': self.gun_offsets,
+                'hand offsets': self.hand_offsets,
+                'gun offsets': self.gun_offsets,
             }
             file.write(pickle.dumps(data))
             print('Saved')

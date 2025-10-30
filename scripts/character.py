@@ -1,6 +1,7 @@
 import pygame
 import random
 from scripts.body import Body
+from scripts.data import HAND_OFFSETS
 from scripts.utils import Animation, load_all_images, Timer
 import pickle
 from scripts.gun import Gun
@@ -58,7 +59,7 @@ class Character(Body):
         self.guns_index = 0
 
         self.equipped_gun = self.guns[self.guns_index]
-        self.offsets = pickle.loads(open(f'data/hand_offsets/{character}', 'rb').read())
+        self.offsets = HAND_OFFSETS[character]
         self.hand_type = self.equipped_gun.type
         self.hand_index = 2
 
@@ -221,7 +222,7 @@ class Character(Body):
     def hand_position(self):
         hand_offset = [0, 0]
         if self.current_action in DOUBLE_STATES:
-            hand_offset = (self.offsets['hand_offsets'][self.hand_type][self.current_action]
+            hand_offset = (self.offsets['hand offsets'][self.hand_type][self.current_action]
             [self.animations[self.state].get_frame()])
 
         pos = [self.pos[0] + hand_offset[0] * self.direction, self.pos[1] + hand_offset[1]]
@@ -233,7 +234,7 @@ class Character(Body):
 
     def gun_position(self):
         hand_pos = self.hand_position()
-        gun_offset = self.offsets['gun_offsets'][self.equipped_gun.name][self.hand_index]
+        gun_offset = self.offsets['gun offsets'][self.equipped_gun.name][self.hand_index]
 
         if self.flip:
             hand_pos[0] += 32
@@ -261,7 +262,7 @@ class Character(Body):
             if pygame.K_l in self.game.held_key_presses:
                 self.hand_index = 1
 
-        self.equipped_gun.update(self.gun_position(), self.flip, self.hand_index)
+        self.equipped_gun.update(self.gun_position(), self.flip, self.direction, self.hand_index)
 
         # Shooting
         shoot = pygame.K_k in self.game.key_presses
@@ -343,6 +344,7 @@ class Character(Body):
         self.apply_gravity()
         self.tile_collisions()
         self.ramp_collisions()
+        self.boundary_collision()
         self.checkpoint()
         self.update_position()
 

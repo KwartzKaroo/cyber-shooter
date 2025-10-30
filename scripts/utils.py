@@ -81,6 +81,9 @@ class Animation:
     
     def get_image(self):
         return self.images[self.get_frame()]
+
+    def set_fps(self, fps):
+        self.fps = fps / 100
     
     def reset(self):
         self.frame = 0

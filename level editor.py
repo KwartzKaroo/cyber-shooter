@@ -85,7 +85,7 @@ class Editor:
             'tiles': load_all_images(f'assets/sprites/tilesets/{self.tileset}/tiles/blocks'),
             'ramps': load_all_images(f'assets/sprites/tilesets/{self.tileset}/tiles/ramps'),
             'objects': load_all_images(f'assets/sprites/tilesets/{self.tileset}/objects'),
-            'pickups': load_pickup_icons(f'assets/sprites/tilesets/{self.tileset}/animated objects/pickups'),
+            'pickups': load_pickup_icons(f'assets/sprites/tilesets/{self.tileset}/pickups'),
             'guns': load_all_images(f'assets/sprites/guns/guns/1'),
             'checkpoints': load_all_images(f'assets/sprites/checkpoints'),
             'enemies': load_enemy_icons('assets/sprites/enemies', size=(48, 48)),

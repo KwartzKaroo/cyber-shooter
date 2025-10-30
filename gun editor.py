@@ -2,9 +2,8 @@ import pickle
 
 import pygame
 import time
-
 from scripts.utils import CustomButton, load_all_images, debug_info, Timer, Animation
-from scripts.constants import SPECS, INDEX_TO_DIRECTION
+from scripts.constants import SPECS, INDEX_TO_DIRECTION, GUN_NAMES
 
 
 class Editor:
@@ -32,7 +31,6 @@ class Editor:
 
         # Images and data
         self.save_timer = Timer(1000 * 60)
-        self.gun_names = ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14')
         self.gun_data = {}
         self.gun_images = {}
         self.bullet_images = {}
@@ -44,6 +42,7 @@ class Editor:
         # Gun specific
         self.bullet_offsets = {}
         self.effect_offsets = {}
+        self.effect_fps = 12
         self.direction_index = 2
         self.bullet_positions = []
         self.fire_rate = Timer(1000)
@@ -80,10 +79,10 @@ class Editor:
     def draw(self):
         specs = SPECS[self.direction_index]
 
-        gun = self.gun_data[self.gun_names[self.gun_index]]
+        gun = self.gun_data[GUN_NAMES[self.gun_index]]
         gun_image = pygame.transform.rotate(self.gun_images[specs['type']][self.gun_index], specs['angle'])
         bullet_image = pygame.transform.rotate(self.bullet_images[specs['type']][self.gun_index], specs['angle'])
-        bullet_offset = self.bullet_offsets[self.gun_names[self.gun_index]][self.direction_index]
+        bullet_offset = self.bullet_offsets[GUN_NAMES[self.gun_index]][self.direction_index]
 
         pos = (self.layer.get_width() / 2 - gun_image.get_width() / 2,
                self.layer.get_height() / 2 - gun_image.get_height() / 2)
@@ -95,17 +94,22 @@ class Editor:
                 self.bullet_positions.append(bullet_pos)
                 self.fire_rate.activate()
 
-        self.layer.blit(gun_image, pos)
-
         # Effect position
-        self.effect_animations[self.effect_index].update(self.delta)
-        self.layer.blit(self.effect_animations[self.effect_index].get_image(), pos)
+        effect_offset = self.effect_offsets[GUN_NAMES[self.gun_index]][self.direction_index]
+        effect_pos = [pos[0] + effect_offset[0], pos[1] + effect_offset[1]]
+        # self.effect_animations[specs['type']][self.effect_index].fps = self.effect_fps
+        self.effect_animations[specs['type']][self.effect_index].update(self.delta)
+        effect_image = self.effect_animations[specs['type']][self.effect_index].get_image()
+        effect_image = pygame.transform.rotate(effect_image, specs['angle'])
+        self.layer.blit(effect_image, effect_pos)
+
+        self.layer.blit(gun_image, pos)
 
         if self.shoot:
             for offset in self.bullet_positions:
                 direction = pygame.Vector2(INDEX_TO_DIRECTION[self.direction_index]).normalize()
-                offset[0] += gun['bullet_speed'] * direction[0]
-                offset[1] += gun['bullet_speed'] * direction[1]
+                offset[0] += gun['bullet speed'] * direction[0]
+                offset[1] += gun['bullet speed'] * direction[1]
                 self.layer.blit(bullet_image, offset)
                 if abs(offset[0]) > 600 and abs(offset[1]) > 300:
                     self.bullet_positions.remove(offset)
@@ -126,13 +130,23 @@ class Editor:
             self.gun_index = (self.gun_index + 1) % 14
 
         if pygame.K_a in self.key_presses:
-            self.bullet_offsets[self.gun_names[self.gun_index]][self.direction_index][0] += -1
+            self.bullet_offsets[GUN_NAMES[self.gun_index]][self.direction_index][0] += -1
         if pygame.K_d in self.key_presses:
-            self.bullet_offsets[self.gun_names[self.gun_index]][self.direction_index][0] += 1
+            self.bullet_offsets[GUN_NAMES[self.gun_index]][self.direction_index][0] += 1
         if pygame.K_w in self.key_presses:
-            self.bullet_offsets[self.gun_names[self.gun_index]][self.direction_index][1] += -1
+            self.bullet_offsets[GUN_NAMES[self.gun_index]][self.direction_index][1] += -1
         if pygame.K_s in self.key_presses:
-            self.bullet_offsets[self.gun_names[self.gun_index]][self.direction_index][1] += 1
+            self.bullet_offsets[GUN_NAMES[self.gun_index]][self.direction_index][1] += 1
+
+        # Effect editing
+        if pygame.K_LEFT in self.key_presses:
+            self.effect_offsets[GUN_NAMES[self.gun_index]][self.direction_index][0] += -1
+        if pygame.K_RIGHT in self.key_presses:
+            self.effect_offsets[GUN_NAMES[self.gun_index]][self.direction_index][0] += 1
+        if pygame.K_UP in self.key_presses:
+            self.effect_offsets[GUN_NAMES[self.gun_index]][self.direction_index][1] += -1
+        if pygame.K_DOWN in self.key_presses:
+            self.effect_offsets[GUN_NAMES[self.gun_index]][self.direction_index][1] += 1
 
         if pygame.K_q in self.key_presses:
             self.direction_index = (self.direction_index + 1) % 5
@@ -144,9 +158,9 @@ class Editor:
 
     def side_panel(self):
         click = 1 in self.mouse_clicks and not self.clicked
-        gun = self.gun_data[self.gun_names[self.gun_index]]
+        gun = self.gun_data[GUN_NAMES[self.gun_index]]
 
-        overall = gun['damage'] * (1000 / (1000 - gun['fire_rate']))
+        overall = gun['damage'] * (1000 / max(1000 - gun['fire rate'], 1))
         debug_info(self.screen, f'DPS: {round(overall, 2)}', (576 / 2, 40), True, 24)
 
         # Damage
@@ -161,36 +175,36 @@ class Editor:
         # Fire rate
         self.buttons['minus'].draw(self.screen, (576, 32 + 42 * 1), False)
         if self.buttons['minus'].click(self.mouse_rect, click):
-            gun['fire_rate'] = max(100, gun['fire_rate'] - 10)
-            self.fire_rate.duration = 1000 - gun['fire_rate']
+            gun['fire rate'] = max(100, gun['fire rate'] - 10)
+            self.fire_rate.duration = 1000 - gun['fire rate']
 
         self.buttons['plus'].draw(self.screen, (576 + 48, 32 + 42 * 1), False)
         if self.buttons['plus'].click(self.mouse_rect, click):
-            gun['fire_rate'] = min(gun['fire_rate'] + 10, 990)
-            self.fire_rate.duration = 1000 - gun['fire_rate']
+            gun['fire rate'] = min(gun['fire rate'] + 10, 1000)
+            self.fire_rate.duration = 1000 - gun['fire rate']
 
         # Mag size
         self.buttons['minus'].draw(self.screen, (576, 32 + 42 * 2), False)
         if self.buttons['minus'].click(self.mouse_rect, click):
-            gun['mag_size'] = max(5, gun['mag_size'] - 1)
+            gun['mag size'] = max(5, gun['mag size'] - 5)
 
         self.buttons['plus'].draw(self.screen, (576 + 48, 32 + 42 * 2), False)
         if self.buttons['plus'].click(self.mouse_rect, click):
-            gun['mag_size'] = min(gun['mag_size'] + 1, 400)
+            gun['mag size'] = min(gun['mag size'] + 5, 400)
 
         # Speed
         self.buttons['minus'].draw(self.screen, (576, 32 + 42 * 3), False)
         if self.buttons['minus'].click(self.mouse_rect, click):
-            gun['bullet_speed'] = max(4, gun['bullet_speed'] - 1)
+            gun['bullet speed'] = max(4, gun['bullet speed'] - 1)
 
         self.buttons['plus'].draw(self.screen, (576 + 48, 32 + 42 * 3), False)
         if self.buttons['plus'].click(self.mouse_rect, click):
-            gun['bullet_speed'] = min(gun['bullet_speed'] + 1, 20)
+            gun['bullet speed'] = min(gun['bullet speed'] + 1, 20)
 
         # Effect
         self.buttons['minus'].draw(self.screen, (576, 32 + 42 * 4), False)
         if self.buttons['minus'].click(self.mouse_rect, click):
-            gun['effect'] = max(1, gun['effect'] - 1)
+            gun['effect'] = max(0, gun['effect'] - 1)
             self.effect_index = int(gun['effect'])
 
         self.buttons['plus'].draw(self.screen, (576 + 48, 32 + 42 * 4), False)
@@ -198,11 +212,27 @@ class Editor:
             gun['effect'] = min(gun['effect'] + 1, 9)
             self.effect_index = int(gun['effect'])
 
+        # Effect FPS
+        self.buttons['minus'].draw(self.screen, (576, 32 + 42 * 5), False)
+        if self.buttons['minus'].click(self.mouse_rect, click):
+            gun['effect fps'] = max(5, gun['effect fps'] - 1)
+            self.effect_fps = gun['effect fps']
+            self.effect_animations[1][self.effect_index].set_fps(gun['effect fps'])
+            self.effect_animations[2][self.effect_index].set_fps(gun['effect fps'])
+
+        self.buttons['plus'].draw(self.screen, (576 + 48, 32 + 42 * 5), False)
+        if self.buttons['plus'].click(self.mouse_rect, click):
+            gun['effect fps'] = min(gun['effect fps'] + 1, 100)
+            # self.effect_fps = gun['effect fps']
+            self.effect_animations[1][self.effect_index].set_fps(gun['effect fps'])
+            self.effect_animations[2][self.effect_index].set_fps(gun['effect fps'])
+
         debug_info(self.screen, f'Damage: {gun["damage"]}', (576 + 96, 32 + 42 * 0), size=28, bg_colour='#43b0f0')
-        debug_info(self.screen, f'Fire rate: {gun["fire_rate"]}', (576 + 96, 32 + 42 * 1), size=28, bg_colour='#43b0f0')
-        debug_info(self.screen, f'Mag size: {gun["mag_size"]}', (576 + 96, 32 + 42 * 2), size=28, bg_colour='#43b0f0')
-        debug_info(self.screen, f'Speed: {gun["bullet_speed"]}', (576 + 96, 32 + 42 * 3), size=28, bg_colour='#43b0f0')
+        debug_info(self.screen, f'Fire rate: {gun["fire rate"]}', (576 + 96, 32 + 42 * 1), size=28, bg_colour='#43b0f0')
+        debug_info(self.screen, f'Mag size: {gun["mag size"]}', (576 + 96, 32 + 42 * 2), size=28, bg_colour='#43b0f0')
+        debug_info(self.screen, f'Speed: {gun["bullet speed"]}', (576 + 96, 32 + 42 * 3), size=28, bg_colour='#43b0f0')
         debug_info(self.screen, f'Effect: {gun["effect"]}', (576 + 96, 32 + 42 * 4), size=28, bg_colour='#43b0f0')
+        debug_info(self.screen, f'Effect FPS: {gun["effect fps"]}', (576 + 96, 32 + 42 * 5), size=28, bg_colour='#43b0f0')
 
     def load_images(self):
         self.gun_images = {
@@ -215,27 +245,21 @@ class Editor:
             2: load_all_images('assets/sprites/guns/bullets/2'),
         }
 
-        self.effect_animations = {
-            0: Animation('assets/sprites/guns/shoot effects/1/01.png', 12, size=(48, 48)),
-            1: Animation('assets/sprites/guns/shoot effects/1/02.png', 12, size=(48, 48)),
-            2: Animation('assets/sprites/guns/shoot effects/1/03.png', 12, size=(48, 48)),
-            3: Animation('assets/sprites/guns/shoot effects/1/04.png', 12, size=(48, 48)),
-            4: Animation('assets/sprites/guns/shoot effects/1/05.png', 12, size=(48, 48)),
-            5: Animation('assets/sprites/guns/shoot effects/1/06.png', 12, size=(48, 48)),
-            6: Animation('assets/sprites/guns/shoot effects/1/07.png', 12, size=(48, 48)),
-            7: Animation('assets/sprites/guns/shoot effects/1/08.png', 12, size=(48, 48)),
-            8: Animation('assets/sprites/guns/shoot effects/1/09.png', 12, size=(48, 48)),
-            9: Animation('assets/sprites/guns/shoot effects/1/10.png', 12, size=(48, 48)),
-        }
+        self.effect_animations[1] = {}
+        self.effect_animations[2] = {}
+        for x, name in enumerate(GUN_NAMES[:10]):
+            self.effect_animations[1].update({x: Animation(f'assets/sprites/guns/shoot effects/1/{name}.png', 12, size=(48, 48))})
+            self.effect_animations[2].update({x: Animation(f'assets/sprites/guns/shoot effects/2/{name}.png', 12, size=(48, 48))})
 
     def load_data(self):
-        for name in self.gun_names:
+        for name in GUN_NAMES:
             self.gun_data[name] = {
                 'damage': 5,
-                'fire_rate': 100,
-                'mag_size': 5,
-                'bullet_speed': 4,
-                'effect': 1
+                'fire rate': 100,
+                'mag size': 5,
+                'bullet speed': 4,
+                'effect': 1,
+                'effect fps': 5
             }
 
             self.bullet_offsets[name] = {
@@ -260,26 +284,26 @@ class Editor:
             print('Create new')
 
     def load(self):
-        with open('data/guns/gun_attributes', 'rb') as file:
+        with open('data/guns/attributes', 'rb') as file:
             self.gun_data = pickle.load(file)
 
         with open('data/guns/offsets', 'rb') as file2:
             data = pickle.load(file2)
-            self.bullet_offsets = data['bullet_offsets']
-            self.effect_offsets = data['effect_offsets']
+            self.bullet_offsets = data['bullet offsets']
+            self.effect_offsets = data['effect offsets']
 
         print('loaded')
 
     def save(self):
-        with open('data/guns/gun_attributes', 'wb') as file:
-            pickle.dump(self.gun_data, file)
+        with open('data/guns/attributes', 'wb') as file:
+            file.write(pickle.dumps(self.gun_data))
 
         with open('data/guns/offsets', 'wb') as file:
             data = {
-                'bullet_offsets': self.bullet_offsets,
-                'effect_offsets': self.effect_offsets
+                'bullet offsets': self.bullet_offsets,
+                'effect offsets': self.effect_offsets
             }
-            pickle.dump(data, file)
+            file.write(pickle.dumps(data))
 
         print('Saved')
 

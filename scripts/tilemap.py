@@ -57,7 +57,7 @@ class Layer:
         self.data = data
         self.images = images
 
-    def draw(self, surface, scroll, expansion=1):
+    def draw(self, surface, scroll, expansion=0):
         for x in range(int(scroll[0] // 32) - expansion, int((scroll[0] + 576) // 32) + 1 + expansion):
             for y in range(int(scroll[1] // 32) - expansion, int((scroll[1] + 320) // 32) + 1 + expansion):
                 loc = f'{x},{y}'
@@ -78,6 +78,36 @@ class Layer:
                         Tile(self.images[self.data[loc]['index']], self.data[loc]['pos'], self.data[loc]['index'])
                     )
         return tiles
+
+
+class AnimatedLayer:
+    def __init__(self, objects):
+        self.objects = objects
+
+    def draw(self, delta, surface, scroll, expansion=0):
+        # for _, obj in self.objects.items():
+        for x in range(int(scroll[0] // 32) - expansion, int((scroll[0] + 576) // 32) + 1 + expansion):
+            for y in range(int(scroll[1] // 32) - expansion, int((scroll[1] + 320) // 32) + 1 + expansion):
+                loc = f'{x},{y}'
+                if loc in self.objects:
+                    obj = self.objects[loc]
+                    obj.update(delta)
+                    image = obj.get_image()
+                    pos = x * 32 - scroll[0], y * 32 + (32 - image.get_height()) - scroll[1]
+                    surface.blit(image, pos)
+
+    # def tiles_around(self, rect):
+    #     tiles = []
+    #     grid_pos = rect.x // 32, rect.y // 32
+    #     for h in range(-1, math.ceil(rect.h / 32) + 1):
+    #         for w in range(-1, math.ceil(rect.w / 32) + 1):
+    #             loc = f'{grid_pos[0] + w},{grid_pos[1] + h}'
+    #             if loc in self.objects:
+    #                 tiles.append(
+    #                     Tile(self.images[self.objects[loc]['index']], self.objects[loc]['pos'], self.objects[loc]['index'])
+    #                 )
+    #     return tiles
+
 
 
 class Tile:
