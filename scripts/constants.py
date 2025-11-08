@@ -1,4 +1,10 @@
-# This file contains# Constants
+# This file contains constants
+
+
+GRAVITY = .155
+FPS = 66
+SCREEN_SIZE = 576, 320
+
 SPECS = {
     # Hand direction
     (0, 1): {'image': 1, 'angle': -90},
@@ -31,23 +37,21 @@ DIRECTION_TO_INDEX = {
     (0, -1): 4
 }
 
-
 GUN_NAMES = ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14')
 EFFECTS = ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10')
 GUNS = {
-    '01': {'type': 1, 'bullet type': 1, 'auto': False},
-    '02': {'type': 1, 'bullet type': 1, 'auto': False},
-    '03': {'type': 1, 'bullet type': 1, 'auto': False},
-    '04': {'type': 1, 'bullet type': 1, 'auto': False},
-    '05': {'type': 2, 'bullet type': 1, 'auto': False},
-    '06': {'type': 1, 'bullet type': 1, 'auto': False},
-    '07': {'type': 2, 'bullet type': 1, 'auto': True},
-    '08': {'type': 2, 'bullet type': 1, 'auto': True},
-    '09': {'type': 2, 'bullet type': 1, 'auto': True},
-    '10': {'type': 2, 'bullet type': 1, 'auto': False},
-    '11': {'type': 2, 'bullet type': 1, 'auto': True},
-    '12': {'type': 2, 'bullet type': 1, 'auto': False},
-    '13': {'type': 2, 'bullet type': 1, 'auto': True},
-    '14': {'type': 2, 'bullet type': 1, 'auto': True},
+    '01': {'type': 1, 'bullet type': 'normal', 'auto': False},
+    '02': {'type': 1, 'bullet type': 'normal', 'auto': False},
+    '03': {'type': 1, 'bullet type': 'FMJ', 'auto': False},
+    '04': {'type': 1, 'bullet type': 'normal', 'auto': False},
+    '05': {'type': 2, 'bullet type': 'normal', 'auto': False},
+    '06': {'type': 1, 'bullet type': 'normal', 'auto': False},
+    '07': {'type': 2, 'bullet type': 'normal', 'auto': True},
+    '08': {'type': 2, 'bullet type': 'normal', 'auto': True},
+    '09': {'type': 2, 'bullet type': 'normal', 'auto': True},
+    '10': {'type': 2, 'bullet type': 'explosive', 'auto': False},
+    '11': {'type': 2, 'bullet type': 'normal', 'auto': True},
+    '12': {'type': 2, 'bullet type': 'normal', 'auto': False},
+    '13': {'type': 2, 'bullet type': 'normal', 'auto': True},
+    '14': {'type': 2, 'bullet type': 'normal', 'auto': True},
 }
-

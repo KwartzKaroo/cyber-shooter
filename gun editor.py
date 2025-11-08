@@ -3,7 +3,7 @@ import pickle
 import pygame
 import time
 from scripts.utils import CustomButton, load_all_images, debug_info, Timer, Animation
-from scripts.constants import SPECS, INDEX_TO_DIRECTION, GUN_NAMES
+from scripts.constants import SPECS, INDEX_TO_DIRECTION, GUN_NAMES, FPS
 
 
 class Editor:
@@ -97,7 +97,6 @@ class Editor:
         # Effect position
         effect_offset = self.effect_offsets[GUN_NAMES[self.gun_index]][self.direction_index]
         effect_pos = [pos[0] + effect_offset[0], pos[1] + effect_offset[1]]
-        # self.effect_animations[specs['type']][self.effect_index].fps = self.effect_fps
         self.effect_animations[specs['type']][self.effect_index].update(self.delta)
         effect_image = self.effect_animations[specs['type']][self.effect_index].get_image()
         effect_image = pygame.transform.rotate(effect_image, specs['angle'])
@@ -126,8 +125,18 @@ class Editor:
 
         if self.buttons['prev'].click(self.mouse_rect, click):
             self.gun_index = (self.gun_index - 1) % 14
+            gun = self.gun_data[GUN_NAMES[self.gun_index]]
+            self.effect_index = int(gun['effect'])
+            self.effect_animations[1][self.effect_index].set_fps(gun['effect fps'])
+            self.effect_animations[2][self.effect_index].set_fps(gun['effect fps'])
+            self.fire_rate.duration = 1000 - gun['fire rate']
         if self.buttons['next'].click(self.mouse_rect, click):
             self.gun_index = (self.gun_index + 1) % 14
+            gun = self.gun_data[GUN_NAMES[self.gun_index]]
+            self.effect_index = int(gun['effect'])
+            self.effect_animations[1][self.effect_index].set_fps(gun['effect fps'])
+            self.effect_animations[2][self.effect_index].set_fps(gun['effect fps'])
+            self.fire_rate.duration = 1000 - gun['fire rate']
 
         if pygame.K_a in self.key_presses:
             self.bullet_offsets[GUN_NAMES[self.gun_index]][self.direction_index][0] += -1
@@ -216,16 +225,15 @@ class Editor:
         self.buttons['minus'].draw(self.screen, (576, 32 + 42 * 5), False)
         if self.buttons['minus'].click(self.mouse_rect, click):
             gun['effect fps'] = max(5, gun['effect fps'] - 1)
-            self.effect_fps = gun['effect fps']
             self.effect_animations[1][self.effect_index].set_fps(gun['effect fps'])
             self.effect_animations[2][self.effect_index].set_fps(gun['effect fps'])
 
         self.buttons['plus'].draw(self.screen, (576 + 48, 32 + 42 * 5), False)
         if self.buttons['plus'].click(self.mouse_rect, click):
             gun['effect fps'] = min(gun['effect fps'] + 1, 100)
-            # self.effect_fps = gun['effect fps']
             self.effect_animations[1][self.effect_index].set_fps(gun['effect fps'])
             self.effect_animations[2][self.effect_index].set_fps(gun['effect fps'])
+
 
         debug_info(self.screen, f'Damage: {gun["damage"]}', (576 + 96, 32 + 42 * 0), size=28, bg_colour='#43b0f0')
         debug_info(self.screen, f'Fire rate: {gun["fire rate"]}', (576 + 96, 32 + 42 * 1), size=28, bg_colour='#43b0f0')
@@ -352,7 +360,7 @@ class Editor:
             self.screen.blit(pygame.transform.scale(self.layer, (576, 320)), (0, 0))
 
             # Delta time
-            self.delta = (time.time() - prev_time) * 66
+            self.delta = time.time() - prev_time
             prev_time = time.time()
 
             # Update screen

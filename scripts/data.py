@@ -2,7 +2,6 @@
 
 import pickle
 
-
 GUN_OFFSETS = pickle.loads(open('data/guns/offsets', 'rb').read())
 GUN_ATTRIBUTES = pickle.loads(open('data/guns/attributes', 'rb').read())
 HAND_OFFSETS = {

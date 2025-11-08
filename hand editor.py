@@ -271,18 +271,18 @@ class Editor:
     def load_images(self):
         self.animations = {
             1: {
-                'idle': Animation(f'assets/sprites/characters/{self.character}/idle1.png', 6, size=(48, 48)),
-                'jump': Animation(f'assets/sprites/characters/{self.character}/jump1.png', 6, size=(48, 48)),
-                'crouch': Animation(f'assets/sprites/characters/{self.character}/crouch1.png', 6, size=(48, 48)),
-                'run': Animation(f'assets/sprites/characters/{self.character}/run1.png', 6, size=(48, 48)),
-                'walk': Animation(f'assets/sprites/characters/{self.character}/walk1.png', 6, size=(48, 48)),
+                'idle': Animation(f'assets/sprites/characters/{self.character}/idle1.png', 4, size=(48, 48)),
+                'jump': Animation(f'assets/sprites/characters/{self.character}/jump1.png', 4, size=(48, 48)),
+                'crouch': Animation(f'assets/sprites/characters/{self.character}/crouch1.png', 4, size=(48, 48)),
+                'run': Animation(f'assets/sprites/characters/{self.character}/run1.png', 4, size=(48, 48)),
+                'walk': Animation(f'assets/sprites/characters/{self.character}/walk1.png', 4, size=(48, 48)),
             },
             2: {
-                'idle': Animation(f'assets/sprites/characters/{self.character}/idle2.png', 6, size=(48, 48)),
-                'jump': Animation(f'assets/sprites/characters/{self.character}/jump2.png', 6, size=(48, 48)),
-                'crouch': Animation(f'assets/sprites/characters/{self.character}/crouch2.png', 6, size=(48, 48)),
-                'run': Animation(f'assets/sprites/characters/{self.character}/run2.png', 6, size=(48, 48)),
-                'walk': Animation(f'assets/sprites/characters/{self.character}/walk2.png', 6, size=(48, 48)),
+                'idle': Animation(f'assets/sprites/characters/{self.character}/idle2.png', 4, size=(48, 48)),
+                'jump': Animation(f'assets/sprites/characters/{self.character}/jump2.png', 4, size=(48, 48)),
+                'crouch': Animation(f'assets/sprites/characters/{self.character}/crouch2.png', 4, size=(48, 48)),
+                'run': Animation(f'assets/sprites/characters/{self.character}/run2.png', 4, size=(48, 48)),
+                'walk': Animation(f'assets/sprites/characters/{self.character}/walk2.png', 4, size=(48, 48)),
             },
         }
 
@@ -380,8 +380,9 @@ class Editor:
 
 
             # Delta time
-            self.delta = (time.time() - prev_time) * 66
-            prev_time = time.time()
+            current_time = time.time()
+            self.delta = current_time - prev_time
+            prev_time = current_time
 
             # Update screen
             pygame.display.update()

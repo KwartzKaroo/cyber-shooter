@@ -1,9 +1,11 @@
-import pygame
 from os import walk
+
+import pygame
 
 
 def load_image(path):
     return pygame.image.load(path).convert_alpha()
+
 
 def load_all_images(path):
     images = []
@@ -11,6 +13,7 @@ def load_all_images(path):
         for file in files:
             images.append(load_image(root + '/' + file))
     return images
+
 
 def cut_sprite_sheet(image, cols=1, size=None):
     images = []
@@ -29,6 +32,7 @@ def cut_sprite_sheet(image, cols=1, size=None):
 
     return images
 
+
 def load_enemy_icons(path, cols=4, size=None):
     images = []
     for root, _, files in walk(path):
@@ -39,11 +43,13 @@ def load_enemy_icons(path, cols=4, size=None):
                 images.append(image[0])
     return images
 
+
 def load_pickup_icons(path):
     images = []
     for image in load_all_images(path):
         images.append(cut_sprite_sheet(image, size=(24, 24))[0])
     return images
+
 
 def debug_rect(surface, rect, scroll=(0, 0), colour='green'):
     if isinstance(rect, pygame.Rect):
@@ -51,6 +57,7 @@ def debug_rect(surface, rect, scroll=(0, 0), colour='green'):
     else:
         rect = [rect[0] - scroll[0], rect[1] - scroll[1], rect[2], rect[3]]
     pygame.draw.rect(surface, colour, rect, 1)
+
 
 def debug_info(surface, info, pos, center=False, size=20, text_colour='white', bg_colour='orange'):
     font = pygame.font.SysFont('calibri', size)
@@ -69,29 +76,29 @@ class Animation:
     def __init__(self, image, fps, loop=True, number=1, size=None):
         if isinstance(image, str):
             image = load_image(image)
-            
+
         self.images = cut_sprite_sheet(image, number, size)
-        self.fps = fps / 100
+        self.fps = fps
         self.loop = loop
         self.frame = 0
         self.finished = False
-        
+
     def get_frame(self):
         return int(self.frame)
-    
+
     def get_image(self):
         return self.images[self.get_frame()]
 
     def set_fps(self, fps):
-        self.fps = fps / 100
-    
+        self.fps = fps
+
     def reset(self):
         self.frame = 0
         self.finished = False
-        
+
     def update(self, delta):
-        self.frame += self.fps * delta
-        
+        self.frame += delta * self.fps
+
         if self.get_frame() > len(self.images) - 1:
             if self.loop:
                 self.frame = 0
@@ -113,11 +120,11 @@ class Timer:
         if not self.active:
             self.start_time = pygame.time.get_ticks()
             self.active = True
-    
+
     def deactivate(self):
         self.start_time = 0
         self.active = False
-    
+
     def update(self):
         if self.active:
             if pygame.time.get_ticks() - self.start_time > self.duration:
@@ -139,12 +146,11 @@ class ImageButton:
         self.rect = self.image.get_rect()
         self.draw_pos = [0, 0]
 
-    def draw(self, surface, pos, center=True, offset=(0, 0)):
-        rect = self.image.get_rect()
+    def draw(self, surface, pos, center=True, offset=(0, 0), scale=1):
         if center:
-            self.rect.center = pos[0], pos[1]
+            self.rect.center = pos[0] * scale, pos[1] * scale
         else:
-            self.rect.topleft = pos[0], pos[1]
+            self.rect.topleft = pos[0] * scale, pos[1] * scale
 
         self.draw_pos = self.rect.x - offset[0], self.rect.y - offset[1]
         surface.blit(self.image, self.draw_pos)
@@ -168,6 +174,6 @@ class CustomButton(ImageButton):
 
         center = image.get_rect().center
         image.blit(text, (center[0] - text.get_width() / 2,
-                               center[1] - text.get_height() / 2))
+                          center[1] - text.get_height() / 2))
 
         super().__init__(image)
