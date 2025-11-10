@@ -1,7 +1,7 @@
 from scripts.constants import GUN_NAMES
 from scripts.guns.gun import Gun
 from scripts.utils import load_all_images, Animation
-from scripts.world.tilemap import Layer
+from scripts.world.tilemap import Layer, AnimatedLayer
 
 
 class InteractiveMap:
@@ -11,7 +11,7 @@ class InteractiveMap:
         self.level = level
 
         self.guns = []
-        self.pickups = {}
+        self.pickups = None
         self.checkpoints = None
 
         self.images = {}
@@ -23,12 +23,7 @@ class InteractiveMap:
         self.checkpoints.draw(self.game.layers[2], self.level.scroll)
 
         # Pickups
-        for key in self.pickups:
-            obj = self.pickups[key]
-            obj.update(self.game.delta)
-            image = obj.get_image()
-            pos = key[0] - self.level.scroll[0], key[1] + (32 - image.get_height()) - self.level.scroll[1]
-            self.game.layers[3].blit(image, pos)
+        self.pickups.draw(self.game.delta, self.game.layers[3], self.level.scroll)
 
         # Draw guns
         for gun in self.guns:
@@ -36,6 +31,13 @@ class InteractiveMap:
 
     def get_checkpoints(self, rect):
         return self.checkpoints.tiles_around(rect)
+
+    def get_pickups(self, rect):
+        return self.pickups.tiles_around(rect)
+
+    def remove_pickup(self, pos):
+        pos = f'{pos[0] // 32},{pos[1] // 32}'
+        self.pickups.remove(pos)
 
     def load(self):
         # Load images
@@ -52,5 +54,10 @@ class InteractiveMap:
 
         self.pickups = {}
         for key, value in self.level.data['pickups'].items():
-            pos = value['pos'][0] * 32, value['pos'][1] * 32
-            self.pickups[pos] = Animation(self.images['pickups'][value['index']], 9, True, 6)
+            self.pickups[key] = {
+                'animation': Animation(self.images['pickups'][value['index']], 5, True, (24, 24)),
+                'pos': value['pos'],
+                'index': value['index']
+            }
+
+        self.pickups = AnimatedLayer(self.pickups)

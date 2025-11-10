@@ -11,13 +11,13 @@ class Enemy(Body):
     def __init__(self, game, level, size, pos, speed, hp, name, image_offset, group=()):
         super().__init__(game, level, size, pos, speed, hp, image_offset, group)
 
-        self.actions = {'death': False, 'hurt': False, 'attack': False, 'walk': False, 'idle': True}
+        self.actions = {'hurt': False, 'death': False, 'attack': False, 'walk': False, 'idle': True}
         self.animations = {
-            'idle': Animation(f'assets/sprites/enemies/{name}/idle.png', 4, True, size=(48, 48)),
-            'walk': Animation(f'assets/sprites/enemies/{name}/walk.png', 8, True, size=(48, 48)),
-            'hurt': Animation(f'assets/sprites/enemies/{name}/hurt.png', 3, False, size=(48, 48)),
-            'death': Animation(f'assets/sprites/enemies/{name}/death.png', 3, False, size=(48, 48)),
-            'attack': Animation(f'assets/sprites/enemies/{name}/attack.png', 8, False, size=(48, 48)),
+            'idle': Animation(f'assets/sprites/enemies/{name}/idle.png', 4, True, (48, 48)),
+            'walk': Animation(f'assets/sprites/enemies/{name}/walk.png', 8, True, (48, 48)),
+            'hurt': Animation(f'assets/sprites/enemies/{name}/hurt.png', 3, False, (48, 48)),
+            'death': Animation(f'assets/sprites/enemies/{name}/death.png', 6, False, (48, 48)),
+            'attack': Animation(f'assets/sprites/enemies/{name}/attack.png', 8, False, (48, 48)),
         }
         self.current_action = 'idle'
         self.prev_action = 'idle'
@@ -181,6 +181,7 @@ class Enemy(Body):
         if self.zero_health():
             SFX[self.damage_sound].stop()
             if not self.actions['death']:
+                self.level.score += 100
                 SFX['death 1'].play()
             self.actions['death'] = True
             self.death_timer.activate()

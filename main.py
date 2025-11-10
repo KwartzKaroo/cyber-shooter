@@ -1,20 +1,32 @@
-import json
+# This is the main file. Run the game entire game here.
+# Some of the other files will give you an error if you run them directly.
+# They are all useless on their own
+
+# Author: Uhone DK Teffo A.K.A KwartzKaroo
+# Game title: Cyber Shooter 2D
+# My first complete game. Actually, it's my second complete game. I lost my first game called Agent Spas.
+# Hopefully I'll find it someday. I'll upload it if I do.
+# But anyway, I hope you have fun playing this game. It took me a very long time, about 6 months
+# with continuous updates to make the game run better.
+# Feel free to modify anything here if you know what you're doing.
+# Check out my GitHub (KwartzKaroo) in the future because I plan on making more and better games, and a few other projects.
+
+
 import pygame
+import json
 import time
+from os import listdir
+
+# Game imports
+from scripts.constants import SCREEN_SIZE
+from scripts.states.state import StateManager
+from scripts.states.level import Level
+from scripts.audio import MUSIC
+
 
 # Initialize pygame
 pygame.init()
-
-# Initialize sound
 pygame.mixer.init()
-
-from scripts.constants import SCREEN_SIZE
-from scripts.menus.level import Level
-from scripts.menus.start import StartScreen
-from scripts.menus.select_character import SelectCharacter
-from scripts.menus.pause import PauseMenu, Controls
-from scripts.menus.select_level import SelectLevel
-from scripts.audio import MUSIC
 
 
 class Game:
@@ -46,18 +58,12 @@ class Game:
         # For level
         self.level = 1
         self.character = 1
+        self.num_of_levels = len(listdir('levels'))
 
         # States
+        self.state_manager = StateManager(self)
         self.state = 'start'
         self.prev_state = 'start'
-        self.__states = {
-            'start': StartScreen(self),
-            'select character': SelectCharacter(self),
-            'select level': SelectLevel(self),
-            'pause': PauseMenu(self),
-            'controls': Controls(self),
-            'level': Level(self)
-        }
 
         # Fonts
         self.fonts = {
@@ -110,7 +116,7 @@ class Game:
             self.layers = {i: pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA) for i in range(6)}
 
             # States
-            self.__states[self.state].update()
+            self.state_manager.update()
 
             # Draw every layer onto the screen
             for _, layer in self.layers.items():
@@ -132,7 +138,7 @@ class Game:
             prev_time = current_time
 
     def set_level(self):
-        self.__states['level'] = Level(self)
+        self.state_manager.level = Level(self)
 
     def change_state(self, new_state):
         self.prev_state = self.state

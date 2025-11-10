@@ -23,35 +23,36 @@ class Character(Body):
                         'double jump': False, 'jump': False, 'crouch': False,
                         'walk': False, 'run': False, 'idle': True}
         self.animations = {
-            'idle1': Animation(f'assets/sprites/characters/{character}/idle1.png', 3, True, 4),
-            'idle2': Animation(f'assets/sprites/characters/{character}/idle2.png', 3, True, 4),
-            'run1': Animation(f'assets/sprites/characters/{character}/run1.png', 8, True, 6),
-            'run2': Animation(f'assets/sprites/characters/{character}/run2.png', 8, True, 6),
-            'walk1': Animation(f'assets/sprites/characters/{character}/walk1.png', 5, True, 6),
-            'walk2': Animation(f'assets/sprites/characters/{character}/walk2.png', 5, True, 6),
-            'jump1': Animation(f'assets/sprites/characters/{character}/jump1.png', 6, False, 4),
-            'jump2': Animation(f'assets/sprites/characters/{character}/jump2.png', 6, False, 4),
-            'double jump': Animation(f'assets/sprites/characters/{character}/double_jump.png', 8, False, 6),
-            'crouch1': Animation(f'assets/sprites/characters/{character}/crouch1.png', 4, False, 4),
-            'crouch2': Animation(f'assets/sprites/characters/{character}/crouch2.png', 4, False, 4),
-            'death': Animation(f'assets/sprites/characters/{character}/death.png', 6, False, 6),
-            'hurt': Animation(f'assets/sprites/characters/{character}/hurt.png', 2, False, 1),
-            'pull up': Animation(f'assets/sprites/characters/{character}/pull_up.png', 5, False, 6),
-            'hang': Animation(f'assets/sprites/characters/{character}/hang.png', 3, True, 4),
-            'fall': Animation(f'assets/sprites/characters/{character}/fall.png', 3, False, 4),
+            'idle1': Animation(f'assets/sprites/characters/{character}/idle1.png', 3, True, (48, 48)),
+            'idle2': Animation(f'assets/sprites/characters/{character}/idle2.png', 3, True, (48, 48)),
+            'run1': Animation(f'assets/sprites/characters/{character}/run1.png', 8, True, (48, 48)),
+            'run2': Animation(f'assets/sprites/characters/{character}/run2.png', 8, True, (48, 48)),
+            'walk1': Animation(f'assets/sprites/characters/{character}/walk1.png', 5, True, (48, 48)),
+            'walk2': Animation(f'assets/sprites/characters/{character}/walk2.png', 5, True, (48, 48)),
+            'jump1': Animation(f'assets/sprites/characters/{character}/jump1.png', 6, False, (48, 48)),
+            'jump2': Animation(f'assets/sprites/characters/{character}/jump2.png', 6, False, (48, 48)),
+            'double jump': Animation(f'assets/sprites/characters/{character}/double_jump.png', 8, False, (48, 48)),
+            'crouch1': Animation(f'assets/sprites/characters/{character}/crouch1.png', 7, False, (48, 48)),
+            'crouch2': Animation(f'assets/sprites/characters/{character}/crouch2.png', 7, False, (48, 48)),
+            'death': Animation(f'assets/sprites/characters/{character}/death.png', 6, False, (48, 48)),
+            'hurt': Animation(f'assets/sprites/characters/{character}/hurt.png', 2, False, (48, 48)),
+            'pull up': Animation(f'assets/sprites/characters/{character}/pull_up.png', 5, False, (96, 96)),
+            'hang': Animation(f'assets/sprites/characters/{character}/hang.png', 3, True, (48, 48)),
+            'fall': Animation(f'assets/sprites/characters/{character}/fall.png', 3, False, (48, 48)),
 
             # Emotes
-            'angry': Animation(f'assets/sprites/characters/{character}/angry.png', 5, False, 6),
-            'happy': Animation(f'assets/sprites/characters/{character}/happy.png', 5, False, 6),
-            'watch': Animation(f'assets/sprites/characters/{character}/watch.png', 5, False, 6),
-            'use': Animation(f'assets/sprites/characters/{character}/use.png', 5, False, 6),
-            'talk': Animation(f'assets/sprites/characters/{character}/talk.png', 5, False, 6),
+            'angry': Animation(f'assets/sprites/characters/{character}/angry.png', 5, False, (48, 48)),
+            'happy': Animation(f'assets/sprites/characters/{character}/happy.png', 5, False, (48, 48)),
+            'watch': Animation(f'assets/sprites/characters/{character}/watch.png', 5, False, (48, 48)),
+            'use': Animation(f'assets/sprites/characters/{character}/use.png', 5, False, (48, 48)),
+            'talk': Animation(f'assets/sprites/characters/{character}/talk.png', 5, False, (48, 48)),
         }
         self.current_action = 'idle'
         self.state = 'idle1'
         self.display_image = None
 
         # Extra mobility
+        self.walking = False
         self.hanging = False
         self.hang_rect = pygame.Rect(self.rect.right, self.pos[0] - 2, 2, 2)
         self.side_rect = pygame.Rect(self.rect.right, self.center()[1], 2, 2)
@@ -82,7 +83,7 @@ class Character(Body):
         # Health
         self.hurt = False
         self.death_timer = Timer(3000)
-        self.lives = 1
+        self.lives = 3
         self.dead = False
         self.respawn_point = list(pos)
 
@@ -184,8 +185,12 @@ class Character(Body):
             self.flip = False
 
         # If character is walking reduce the speed
-        if self.actions['walk']:
-            self.velocity[0] /= 3
+        if pygame.K_LSHIFT in self.game.key_presses:
+            self.walking = not self.walking
+
+        if self.walking and self.actions['run']:
+            self.actions['walk'] = True
+            self.velocity[0] /= 2
 
     def jump(self):
         if self.zero_health():
@@ -218,6 +223,7 @@ class Character(Body):
 
         if pygame.K_c in self.game.held_key_presses:
             self.actions['crouch'] = True
+            self.velocity[0] = 0
 
     def hang_and_pull_up(self, tiles):
         self.actions['hang'] = False
@@ -350,6 +356,17 @@ class Character(Body):
             if self.rect.colliderect(tile.rect.left - 16, tile.rect.top - 96, 64, 96):
                 self.respawn_point = [tile.rect.left - 16, tile.rect.top + (32 - self.rect.h)]
 
+    def pickup_item(self):
+        for tile in self.level.interactivemap.get_pickups(self.rect):
+            if self.rect.colliderect(tile):
+                if tile.index == 0:
+                    self.level.score += 30
+                    SFX['card'].play()
+                elif tile.index == 1:
+                    self.level.score += 10
+                    SFX['money'].play()
+                self.level.interactivemap.remove_pickup(tile.rect.topleft)
+
     def health(self):
         for bullet in self.level.enemy_projectiles:
             if bullet.rect.colliderect(self.rect):
@@ -405,6 +422,7 @@ class Character(Body):
         self.ramp_collisions(ramps)
         self.boundary_collision()
         self.checkpoint()
+        self.pickup_item()
         self.hang_and_pull_up(tiles)
         self.update_position()
 

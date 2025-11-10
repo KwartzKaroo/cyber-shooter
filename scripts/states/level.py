@@ -7,7 +7,6 @@ from scripts.audio import MUSIC, SFX, LVL_MUS_MAP
 from scripts.entities.character_presets import Biker, Punk, Cyborg
 from scripts.entities.enemy_presets import EnemyOne, EnemyTwo, EnemyThree, EnemyFour, EnemyFive, EnemySix, EnemySeven, \
     EnemyEight
-from scripts.menus.state import State
 from scripts.utils import load_all_images, load_image, ImageButton
 from scripts.world.background import Background
 from scripts.world.interactive_map import InteractiveMap
@@ -31,13 +30,18 @@ ENEMIES = {
 }
 
 
-class Level(State):
+class Level:
     def __init__(self, game):
-        super().__init__(game)
+        self.game = game
+
+        # For transitions
+        self.blackout_screen = pygame.Surface((576, 320), pygame.SRCALPHA)
+        self.blackout_screen.fill('black')
         self.alpha = 256
         self.phase = True
 
         # Level stuff
+        self.score = 0
         self.scroll = [96, 96]
         self.player_bullets = pygame.sprite.Group()
         self.enemy_projectiles = pygame.sprite.Group()
@@ -86,11 +90,16 @@ class Level(State):
         self.level_completed = False
         self.slow_time = False  # Here's a cool idea to implement: slow down time by altering delta time
 
+        # Music
+        pygame.mixer.music.load(MUSIC[f'music {LVL_MUS_MAP[self.game.level]}'])
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
     def update(self):
         # Pause
-        if pygame.K_ESCAPE in self.game.key_presses and not self.game.key_down and not self.phase:
+        if pygame.K_ESCAPE in self.game.key_presses and not (self.game.key_down or self.phase or self.level_completed or self.player.dead):
             pygame.mixer.music.pause()
-            self.game.state = 'pause'
+            self.game.change_state('pause')
             self.game.key_down = True
 
         # Camera
@@ -98,6 +107,7 @@ class Level(State):
 
         # Projectiles
         self.player_bullets.update()
+        self.enemy_projectiles.update()
 
         # Draw background
         self.background.draw()
@@ -126,6 +136,7 @@ class Level(State):
                 pygame.mixer.music.load(MUSIC['level complete'])
                 pygame.mixer.music.play()
                 self.game.data['levels completed'] += 1
+                self.game.data['highest score'] = max(self.game.data['highest score'], self.score)
                 self.level_completed = True
             self.level_complete()
 
@@ -144,8 +155,7 @@ class Level(State):
         # Camera
         if not self.player.zero_health():
             self.scroll[0] += (self.player.center()[0] - 576 / 2 - self.scroll[0]) * self.game.delta * 6
-            self.scroll[1] += (self.player.rect.bottom - 320 / 2 - (self.player.rect.h + 64) - self.scroll[
-                1]) * self.game.delta * 6
+            self.scroll[1] += (self.player.rect.bottom - 320 / 2 - (self.player.rect.h + 64) - self.scroll[1]) * self.game.delta * 6
         if self.scroll[0] < 96:
             self.scroll[0] = 96
 
@@ -159,7 +169,11 @@ class Level(State):
 
         # Lives
         lives = self.game.fonts[17].render(f'Lives: {self.player.lives}', True, 'white')
-        self.game.layers[5].blit(lives, (576 - 128, 20))
+        self.game.layers[5].blit(lives, (576 - lives.get_width() - 48, 20))
+
+        # Score
+        score = self.game.fonts[17].render(f'Score: {self.score}', True, 'white')
+        self.game.layers[5].blit(score, (576 - score.get_width() - 48, 44))
 
         # Guns
         gun1 = self.player.guns[0]
@@ -179,9 +193,8 @@ class Level(State):
         # Next
         self.buttons['32x32'].draw(self.game.layers[4], (6 * 32 + 16, 5 * 32), False)
         if self.buttons['32x32'].click(self.game.mouse_rect, click):
-            pygame.mixer.music.load(MUSIC['ambience 2'])
-            pygame.mixer.music.play(-1)
-            self.game.state = 'select level'
+            self.game.level += 1
+            self.game.set_level()
             self.game.clicked = True
 
         # Restart
@@ -190,12 +203,12 @@ class Level(State):
             self.game.set_level()
             self.game.clicked = True
 
-        # Main menu
+        # Select level
         self.buttons['32x32'].draw(self.game.layers[4], (10 * 32 + 16, 5 * 32), False)
         if self.buttons['32x32'].click(self.game.mouse_rect, click):
             pygame.mixer.music.load(MUSIC['ambience 2'])
             pygame.mixer.music.play(-1)
-            self.game.state = 'start'
+            self.game.change_state('select level')
             self.game.clicked = True
 
     def game_over(self):
@@ -214,23 +227,10 @@ class Level(State):
 
     def transition(self):
         if self.phase:
-            if self.alpha < 120:
-                pygame.mixer.music.load(MUSIC[f'music {LVL_MUS_MAP[self.game.level]}'])
-                pygame.mixer.music.play(-1)
-            self.alpha -= 2
+            self.alpha -= 1.5
             self.blackout_screen.set_alpha(self.alpha)
             self.game.layers[5].blit(self.blackout_screen, (0, 0))
             if self.alpha <= 0:
                 SFX['start'].play()
                 self.phase = False
                 self.alpha = 255
-
-
-class LevelCompleted(State):
-    def __init__(self, game):
-        super().__init__(game)
-
-
-class GameOver(State):
-    def __init__(self, game):
-        super().__init__(game)

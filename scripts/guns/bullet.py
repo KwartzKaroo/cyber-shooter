@@ -44,7 +44,7 @@ class Bullet(pygame.sprite.Sprite):
         if self.impacted:
             self.kill()
 
-    def update(self, *args, **kwargs):
+    def update(self):
         self.draw()
         self.on_impact()
         self.collisions()

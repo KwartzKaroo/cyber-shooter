@@ -22,14 +22,18 @@ MUSIC = {
 
 SFX = {
     'start': pygame.mixer.Sound('assets/audio/sfx/lets start.mp3'),
+    'biker': pygame.mixer.Sound('assets/audio/sfx/biker.mp3'),
+    'punk': pygame.mixer.Sound('assets/audio/sfx/punk.mp3'),
+    'cyborg': pygame.mixer.Sound('assets/audio/sfx/cyborg.mp3'),
     'explosion': pygame.mixer.Sound('assets/audio/sfx/explosion.mp3'),
     'punch 1': pygame.mixer.Sound('assets/audio/sfx/punch 1.mp3'),
-    'body fall': pygame.mixer.Sound('assets/audio/sfx/body fall.mp3'),
     'bullet hit': pygame.mixer.Sound('assets/audio/sfx/bullet hit.mp3'),
     'grunt 1': pygame.mixer.Sound('assets/audio/sfx/grunt 1.mp3'),
     'grunt 2': pygame.mixer.Sound('assets/audio/sfx/grunt 2.mp3'),
     'death 1': pygame.mixer.Sound('assets/audio/sfx/death 1.mp3'),
     'death 2': pygame.mixer.Sound('assets/audio/sfx/death 2.mp3'),
+    'money': pygame.mixer.Sound('assets/audio/sfx/money.mp3'),
+    'card': pygame.mixer.Sound('assets/audio/sfx/card.mp3'),
 }
 
 LVL_MUS_MAP = {

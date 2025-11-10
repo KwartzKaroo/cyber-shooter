@@ -15,14 +15,10 @@ def load_all_images(path):
     return images
 
 
-def cut_sprite_sheet(image, cols=1, size=None):
+def cut_sprite_sheet(image, size=None) -> list[pygame.Surface]:
     images = []
-    h = image.get_height()
-    w = image.get_width() // cols
-
-    if size is not None:
-        w, h = size
-        cols = image.get_width() // w
+    w, h = size
+    cols = image.get_width() // w
 
     for i in range(cols):
         surf = pygame.Surface((w, h), pygame.SRCALPHA)
@@ -33,13 +29,13 @@ def cut_sprite_sheet(image, cols=1, size=None):
     return images
 
 
-def load_enemy_icons(path, cols=4, size=None):
+def load_enemy_icons(path, size):
     images = []
     for root, _, files in walk(path):
         for file in files:
             if file.lower() == 'idle.png':
                 image = load_image(root + '/' + file)
-                image = cut_sprite_sheet(image, cols, size)
+                image = cut_sprite_sheet(image, size)
                 images.append(image[0])
     return images
 
@@ -47,7 +43,7 @@ def load_enemy_icons(path, cols=4, size=None):
 def load_pickup_icons(path):
     images = []
     for image in load_all_images(path):
-        images.append(cut_sprite_sheet(image, size=(24, 24))[0])
+        images.append(cut_sprite_sheet(image, (24, 24))[0])
     return images
 
 
@@ -73,11 +69,11 @@ def debug_info(surface, info, pos, center=False, size=20, text_colour='white', b
 
 
 class Animation:
-    def __init__(self, image, fps, loop=True, number=1, size=None):
+    def __init__(self, image, fps, loop=True, size=None):
         if isinstance(image, str):
             image = load_image(image)
 
-        self.images = cut_sprite_sheet(image, number, size)
+        self.images = cut_sprite_sheet(image, size)
         self.fps = fps
         self.loop = loop
         self.frame = 0
@@ -161,6 +157,22 @@ class ImageButton:
     def copy(self):
         return ImageButton(self.image)
 
+
+class InvisibleButton:
+    def __init__(self, size, pos=(0, 0), center=False):
+        self.rect = pygame.Rect(pos, size)
+
+    def click(self, mouse_rect, clicked):
+        return self.rect.colliderect(mouse_rect) and clicked
+
+    def set_pos(self, pos, center=False):
+        if center:
+            self.rect.center = pos
+        else:
+            self.rect.topleft = pos
+
+    def debug(self, surface):
+        pygame.draw.rect(surface, 'black', self.rect, 2)
 
 class CustomButton(ImageButton):
     def __init__(self, btn_size, text, font='calibri', font_size=28, text_colour='yellow', bg_colour='white',

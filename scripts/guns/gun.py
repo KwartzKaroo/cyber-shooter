@@ -47,9 +47,9 @@ class Gun:
 
         self.effect_animations = {
             1: Animation(f'assets/sprites/guns/shoot effects/1/{EFFECTS[GUN_ATTRIBUTES[name]["effect"]]}.png',
-                         GUN_ATTRIBUTES[name]['effect fps'], False, size=(48, 48)),
+                         GUN_ATTRIBUTES[name]['effect fps'], False, (48, 48)),
             2: Animation(f'assets/sprites/guns/shoot effects/2/{EFFECTS[GUN_ATTRIBUTES[name]["effect"]]}.png',
-                         GUN_ATTRIBUTES[name]['effect fps'], False, size=(48, 48)),
+                         GUN_ATTRIBUTES[name]['effect fps'], False, (48, 48)),
         }
 
         self.image = self.gun_images[1]
