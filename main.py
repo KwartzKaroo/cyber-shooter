@@ -27,11 +27,11 @@ from scripts.audio import MUSIC
 # Initialize pygame
 pygame.init()
 pygame.mixer.init()
+pygame.mixer.set_num_channels(30)
 
 
 class Game:
     def __init__(self):
-        pygame.mixer.set_num_channels(30)
 
         # Set window and screen
         self.scale = 2
@@ -56,13 +56,13 @@ class Game:
         self.data = json.loads(open('data/game data/data.json', 'r').read())
 
         # For level
-        self.level = 1
+        self.level = 3
         self.character = 1
         self.num_of_levels = len(listdir('levels'))
 
         # States
         self.state_manager = StateManager(self)
-        self.state = 'start'
+        self.state = 'level'
         self.prev_state = 'start'
 
         # Fonts

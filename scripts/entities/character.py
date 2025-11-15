@@ -36,7 +36,7 @@ class Character(Body):
             'crouch2': Animation(f'assets/sprites/characters/{character}/crouch2.png', 7, False, (48, 48)),
             'death': Animation(f'assets/sprites/characters/{character}/death.png', 6, False, (48, 48)),
             'hurt': Animation(f'assets/sprites/characters/{character}/hurt.png', 2, False, (48, 48)),
-            'pull up': Animation(f'assets/sprites/characters/{character}/pull_up.png', 5, False, (96, 96)),
+            'pull up': Animation(f'assets/sprites/characters/{character}/pull_up.png', 5, False, (48, 96)),
             'hang': Animation(f'assets/sprites/characters/{character}/hang.png', 3, True, (48, 48)),
             'fall': Animation(f'assets/sprites/characters/{character}/fall.png', 3, False, (48, 48)),
 
@@ -65,6 +65,7 @@ class Character(Body):
             1: load_all_images(f'assets/sprites/guns/hands/{character}/1'),
             2: load_all_images(f'assets/sprites/guns/hands/{character}/2'),
         }
+        self.hand_image = self.hand_images[1]
         self.guns = [
             Gun(game, level, starting_guns[0]),
             Gun(game, level, starting_guns[1]),
@@ -81,7 +82,7 @@ class Character(Body):
         self.start_timer.activate()
 
         # Health
-        self.hurt = False
+        self.hurt = 0
         self.death_timer = Timer(3000)
         self.lives = 3
         self.dead = False
@@ -92,9 +93,8 @@ class Character(Body):
 
         # Type 1 hand
         if self.hand_type == 1 and self.current_action in DOUBLE_STATES:
-            hand_image = pygame.transform.flip(self.hand_images[1][self.hand_index], self.flip, False)
             self.guns[self.guns_index].draw()
-            self.game.layers[4].blit(hand_image,
+            self.game.layers[4].blit(self.hand_image,
                                      (hand_pos[0] - self.level.scroll[0], hand_pos[1] - self.level.scroll[1]))
 
         # Character image
@@ -102,9 +102,8 @@ class Character(Body):
 
         # Type 2 hand
         if self.hand_type == 2 and self.current_action in DOUBLE_STATES:
-            hand_image = pygame.transform.flip(self.hand_images[2][self.hand_index], self.flip, False)
             self.guns[self.guns_index].draw()
-            self.game.layers[4].blit(hand_image,
+            self.game.layers[4].blit(self.hand_image,
                                      (hand_pos[0] - self.level.scroll[0], hand_pos[1] - self.level.scroll[1]))
 
     def animate(self):
@@ -131,9 +130,31 @@ class Character(Body):
         # Get the image
         image: pygame.Surface = self.animations[state].get_image()
 
-        # # When hurt
-        # if self.hurt:
-        #     image2 = image
+        # When hurt
+        if self.hurt:
+            # Main character image
+            mask = pygame.mask.from_surface(image)
+            image = mask.to_surface()
+            image.set_colorkey((0, 0, 0, 0))
+
+            for w in range(image.get_width()):
+                for h in range(image.get_height()):
+                    if image.get_at((w, h))[0] != 0:
+                        image.set_at((w, h), 'red')
+                    else:
+                        image.set_at((w, h), (0, 0, 0, 0))
+
+            # Hand image
+            hand_mask = pygame.mask.from_surface(self.hand_image)
+            self.hand_image = hand_mask.to_surface()
+
+            for w in range(32):
+                for h in range(32):
+                    if self.hand_image.get_at((w, h))[0] != 0:
+                        self.hand_image.set_at((w, h), 'red')
+                    else:
+                        self.hand_image.set_at((w, h), (0, 0, 0, 0))
+
         self.animations[state].update(self.game.delta)
         self.image = pygame.transform.flip(image, self.flip, False)
 
@@ -323,6 +344,7 @@ class Character(Body):
                 self.hand_index = 1
 
         self.equipped_gun.update(self.gun_position(), self.flip, self.direction, self.hand_index)
+        self.hand_image = pygame.transform.flip(self.hand_images[self.hand_type][self.hand_index], self.flip, False)
 
         # Shooting
         shoot = pygame.K_j in self.game.key_presses
@@ -372,12 +394,19 @@ class Character(Body):
             if bullet.rect.colliderect(self.rect):
                 bullet.impacted = True
                 self.hp -= bullet.damage
-                self.actions['hurt'] = True
+                # self.actions['hurt'] = True
+                self.hurt = 1
 
-        if self.actions['hurt']:
-            self.velocity[0] = 0
-            if self.animations['hurt'].finished:
-                self.actions['hurt'] = False
+        if self.hurt > 0:
+            self.hurt += 1
+
+            if self.hurt > 20:
+                self.hurt = 0
+
+        # if self.actions['hurt']:
+        #     self.velocity[0] = 0
+        #     if self.animations['hurt'].finished:
+        #         self.actions['hurt'] = False
 
         if self.zero_health():
             if not self.actions['death']:

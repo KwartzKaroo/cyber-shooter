@@ -135,7 +135,8 @@ class Level:
             if not self.level_completed:
                 pygame.mixer.music.load(MUSIC['level complete'])
                 pygame.mixer.music.play()
-                self.game.data['levels completed'] += 1
+                if self.game.level > self.game.data['levels completed']:
+                    self.game.data['levels completed'] += 1
                 self.game.data['highest score'] = max(self.game.data['highest score'], self.score)
                 self.level_completed = True
             self.level_complete()

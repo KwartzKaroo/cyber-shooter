@@ -51,7 +51,7 @@ class TileMap:
         self.offgrid = Layer(self.images['tiles'], self.level.data['offgrid'])
         self.ramps = Layer(self.images['ramps'], self.level.data['ramps'])
         self.objects = Layer(self.images['objects'], self.level.data['objects'])
-        self.boundaries = Layer(self.images['ramps'], self.level.data['boundaries'])
+        self.boundaries = Layer(self.images['tiles'], self.level.data['boundaries'])
 
 
 class Layer:

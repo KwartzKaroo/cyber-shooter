@@ -89,7 +89,7 @@ class Editor:
             'guns': load_all_images(f'assets/sprites/guns/guns/1'),
             'checkpoints': load_all_images(f'assets/sprites/checkpoints'),
             'enemies': load_enemy_icons('assets/sprites/enemies', size=(48, 48)),
-            'bosses': load_enemy_icons('assets/sprites/bosses', cols=4),
+            'bosses': load_enemy_icons('assets/sprites/bosses', (48, 48)),
             'boundaries': [pygame.Surface((32, 32))],
         }
         self.categories = list(self.images)

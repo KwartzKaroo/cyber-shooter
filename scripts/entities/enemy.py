@@ -41,8 +41,9 @@ class Enemy(Body):
 
         # Health
         self.death_timer = Timer(5000)
-        self.hit_player_sound = ''
-        self.damage_sound = 'grunt 2'
+        self.hit_player_sound = 'grunt 1'
+        self.take_damage_sound = 'grunt 2'
+        self.death_sound = 'death 1'
 
     def draw(self):
         # Character image
@@ -165,12 +166,11 @@ class Enemy(Body):
     def health(self):
         for bullet in self.level.player_bullets:
             if bullet.rect.colliderect(self.rect) and not self.zero_health():
-                if not bullet.impacted:
-                    self.hp -= bullet.damage
+                self.hp -= bullet.damage
                 bullet.impacted = True
                 self.sees_player = True
                 if not self.actions['hurt']:
-                    SFX[self.damage_sound].play()
+                    SFX[self.take_damage_sound].play()
                 self.actions['hurt'] = True
 
         if self.actions['hurt']:
@@ -179,10 +179,10 @@ class Enemy(Body):
                 self.actions['hurt'] = False
 
         if self.zero_health():
-            SFX[self.damage_sound].stop()
+            SFX[self.take_damage_sound].stop()
             if not self.actions['death']:
                 self.level.score += 100
-                SFX['death 1'].play()
+                SFX[self.death_sound].play()
             self.actions['death'] = True
             self.death_timer.activate()
             self.death_timer.update()

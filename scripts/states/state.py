@@ -59,7 +59,7 @@ class StateManager:
         self.alpha = 0
 
         # The level itself
-        self.level = None
+        self.level = Level(game)
 
     def draw_background(self):
         # Update scroll
@@ -132,9 +132,9 @@ class StateManager:
         # Draw locked levels
         x = 0
         y = 0
-        for i in range(self.game.data['levels completed']):
+        for i in range(min(self.game.data['levels completed'], self.game.num_of_levels)):
             # Button
-            self.buttons['32x32'].set_pos((x * 32 * 2 + 144, y * 32 * 2 + 96))
+            self.buttons['32x32'].set_pos((x * 32 * 2 + 160 - 16, y * 32 * 2 + 160))
             if self.buttons['32x32'].click(self.game.mouse_rect, click):
                 self.game.level = (x + 1) + y * 5
                 self.game.state = 'select character'
@@ -146,9 +146,9 @@ class StateManager:
 
         # Draw locked levels
         x = min(self.game.data['levels completed'], self.game.num_of_levels)
-        y = 0
-        for i in range(15 - min(self.game.data['levels completed'], self.game.num_of_levels)):
-            self.game.layers[0].blit(self.images['locked'], (x * 32 * 2 + 144, y * 32 * 2 + 96))
+        y = x // 5
+        for i in range(5 - min(self.game.data['levels completed'], self.game.num_of_levels)):
+            self.game.layers[0].blit(self.images['locked'], ((x % 5) * 32 * 2 + 192, y * 32 * 2 + 96))
 
             x += 1
             if x % 5 == 0:
