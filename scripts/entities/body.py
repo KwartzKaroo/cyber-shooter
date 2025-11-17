@@ -75,13 +75,14 @@ class Body(pygame.sprite.Sprite):
     def ramp_collisions(self, ramps):
         for ramp in ramps:
             if ramp.rect.colliderect(self.pos[0], self.pos[1], self.rect.w, self.rect.h):
-                self.velocity[1] = 0
-                self.jump_count = 0
-                if ramp.index == 0:
-                    self.rect.bottom = ramp.rect.bottom + (self.rect.left - ramp.rect.right)
-                if ramp.index == 1:
-                    self.rect.bottom = ramp.rect.bottom + (ramp.rect.left - self.rect.right)
-                self.pos[1] = self.rect.y
+                if self.velocity[1] > 0:
+                    self.velocity[1] = 0
+                    self.jump_count = 0
+                    if ramp.index == 0:
+                        self.rect.bottom = ramp.rect.bottom + (self.rect.left - ramp.rect.right)
+                    if ramp.index == 1:
+                        self.rect.bottom = ramp.rect.bottom + (ramp.rect.left - self.rect.right)
+                    self.pos[1] = self.rect.y
 
     def boundary_collision(self):
         for boundary in self.level.tilemap.get_boundaries(self.rect):

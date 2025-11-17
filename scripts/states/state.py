@@ -1,26 +1,8 @@
 import pygame
-
 from scripts.audio import MUSIC
 from scripts.states.level import Level
 from scripts.utils import load_image, InvisibleButton
 from scripts.world.background import Background
-
-
-class State:
-    def __init__(self, game):
-        self.game = game
-        self.phase = False
-        self.alpha = 1000
-
-        self.blackout_screen = pygame.Surface((576, 320), pygame.SRCALPHA)
-        self.blackout_screen.fill('black')
-        self.blackout_screen.set_alpha(28)
-
-    def update(self):
-        pass
-
-    def transition(self):
-        pass
 
 
 class StateManager:
@@ -59,7 +41,7 @@ class StateManager:
         self.alpha = 0
 
         # The level itself
-        self.level = Level(game)
+        self.level = None
 
     def draw_background(self):
         # Update scroll

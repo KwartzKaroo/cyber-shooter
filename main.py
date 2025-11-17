@@ -3,6 +3,7 @@
 # They are all useless on their own
 
 # Author: Uhone DK Teffo A.K.A KwartzKaroo
+# Date created: 18 September 2025
 # Game title: Cyber Shooter 2D
 # My first complete game. Actually, it's my second complete game. I lost my first game called Agent Spas.
 # Hopefully I'll find it someday. I'll upload it if I do.
@@ -56,13 +57,13 @@ class Game:
         self.data = json.loads(open('data/game data/data.json', 'r').read())
 
         # For level
-        self.level = 3
+        self.level = 1
         self.character = 1
         self.num_of_levels = len(listdir('levels'))
 
         # States
         self.state_manager = StateManager(self)
-        self.state = 'level'
+        self.state = 'start'
         self.prev_state = 'start'
 
         # Fonts
@@ -134,7 +135,7 @@ class Game:
             # Delta time
             current_time = time.time()
             self.delta = current_time - prev_time
-            self.framerate = self.delta * 62
+            self.framerate = self.delta * 66
             prev_time = current_time
 
     def set_level(self):
