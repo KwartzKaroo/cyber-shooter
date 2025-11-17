@@ -83,7 +83,7 @@ class Enemy(Body):
 
         return pos[0] - self.level.scroll[0], pos[1] - self.level.scroll[1]
 
-    def check_on_edge(self, tiles):
+    def check_on_edge(self, tiles, ramps):
         if self.flip:
             self.edge_rect = pygame.Rect(self.rect.left - 2 - 10, self.rect.bottom, 2, 2)
             self.wall_rect = pygame.Rect(self.rect.left - 2 - 10, self.rect.top - 4, 2, 8)
@@ -94,7 +94,7 @@ class Enemy(Body):
         self.is_on_edge = False
         self.is_by_wall = False
 
-        if self.edge_rect.collidelist(tiles) == -1:
+        if self.edge_rect.collidelist(tiles) == -1 or self.edge_rect.collidelist(ramps):
             self.is_on_edge = True
 
         if self.wall_rect.collidelist(tiles) > -1:
@@ -194,7 +194,7 @@ class Enemy(Body):
         tiles = self.level.tilemap.get_collision_tiles(self.rect)
         ramps = self.level.tilemap.get_collision_ramps(self.rect)
 
-        self.check_on_edge(tiles)
+        self.check_on_edge(tiles, ramps)
         self.roam()
         self.spot_player()
         self.attack()

@@ -111,7 +111,7 @@ class StateManager:
             self.game.state = 'start'
             self.game.clicked = True
 
-        # Draw locked levels
+        # Buttons
         x = 0
         y = 0
         for i in range(min(self.game.data['levels completed'], self.game.num_of_levels)):
@@ -130,7 +130,7 @@ class StateManager:
         x = min(self.game.data['levels completed'], self.game.num_of_levels)
         y = x // 5
         for i in range(5 - min(self.game.data['levels completed'], self.game.num_of_levels)):
-            self.game.layers[0].blit(self.images['locked'], ((x % 5) * 32 * 2 + 192, y * 32 * 2 + 96))
+            self.game.layers[0].blit(self.images['locked'], ((x % 5) * 32 * 2 + 144, 160))
 
             x += 1
             if x % 5 == 0:

@@ -147,8 +147,6 @@ class EnemyFive(Enemy):
         else:
             self.attack_rect = pygame.Rect(self.rect.centerx, self.rect.y, 20, 16)
 
-        debug_rect(self.game.layers[4], self.attack_rect, self.level.scroll)
-
         if self.attack_rect.colliderect(self.level.player):
             self.velocity[0] = 0
             self.actions['attack'] = True
