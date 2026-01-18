@@ -1,18 +1,19 @@
-import math
-
-import pygame
 import json
+import math
 from datetime import timedelta
 
-from scripts.audio import MUSIC, MISC_SFX
-from scripts.camera import Camera
-from scripts.globals import SCREEN_SIZE, FPS
-from scripts.tilemap import TileMap
+import pygame
+
+from scripts.audio import MUSIC
 from scripts.background import Background
-from scripts.item_map import ItemMap
-from scripts.character import Biker, Punk, Cyborg
-from scripts.enemies import Batsman, Pistolerro, GroundDrone, CyberHound, DockWorker, ExplosiveBot, Zapper, Demoness, Zombie
 from scripts.bosses import SportsMan, Tank, Mech, Vampire, TheScientist
+from scripts.camera import Camera
+from scripts.character import Biker, Punk, Cyborg
+from scripts.enemies import (Batsman, Pistolerro, GroundDrone, CyberHound, DockWorker, ExplosiveBot,
+                             Zapper, Demoness, Zombie)
+from scripts.globals import SCREEN_SIZE, FPS
+from scripts.item_map import ItemMap
+from scripts.tilemap import TileMap
 from scripts.utils import Timer, load_image, InvisibleButton
 
 CHARACTER = {
@@ -184,14 +185,18 @@ class Level:
 
         # Guns
         gun1 = self.player.guns[0]
-        text1 = self.game.fonts[15].render(f'{gun1.ammo}/{gun1.mag_size}', True, 'white')
+        text1 = self.game.fonts[15].render(f'{gun1.ammo}', True, 'white')
         self.screen.blit(gun1.gun_images[1], (22, 48))
         self.screen.blit(text1, (22 + 35, -5 + 48))
+        if self.player.guns_index == 0:
+            pygame.draw.rect(self.screen, 'orange', (15, 44, 3, 15))
 
         gun2 = self.player.guns[1]
-        text2 = self.game.fonts[15].render(f'{gun2.ammo}/{gun2.mag_size}', True, 'white')
+        text2 = self.game.fonts[15].render(f'{gun2.ammo}', True, 'white')
         self.screen.blit(gun2.gun_images[1], (22, 48 + 24))
         self.screen.blit(text2, (22 + 35, -5 + 48 + 24))
+        if self.player.guns_index == 1:
+            pygame.draw.rect(self.screen, 'orange', (15, 44 + 24, 3, 15))
 
     def level_complete(self):
         if not self.level_completed:

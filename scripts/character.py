@@ -400,16 +400,20 @@ class Character(Entity):
     def pick_up_gun(self):
         for gun in self.level.item_map.guns:
             if pygame.K_f in self.level.game.key_presses and self.rect.colliderect(gun):
-                temp = self.equipped_gun
+                if gun.name == self.equipped_gun.name:
+                    self.equipped_gun.ammo += gun.ammo
+                    self.level.item_map.guns.remove(gun)
+                else:
+                    temp = self.equipped_gun
 
-                # Load into load out
-                self.guns[self.guns_index] = gun
-                self.level.item_map.guns.remove(gun)
+                    # Load into load out
+                    self.guns[self.guns_index] = gun
+                    self.level.item_map.guns.remove(gun)
 
-                # Add to map
-                self.level.item_map.guns.append(temp)
-                self.equipped_gun = self.guns[self.guns_index]
-                self.hand_type = self.equipped_gun.type
+                    # Add to map
+                    self.level.item_map.guns.append(temp)
+                    self.equipped_gun = self.guns[self.guns_index]
+                    self.hand_type = self.equipped_gun.type
 
     def update_checkpoint(self):
         for point in self.level.tilemap.get_tiles_around('checkpoints', self.rect):
@@ -490,6 +494,8 @@ class Character(Entity):
         # Restore some guns
         if self.level.boss_fight:
             self.guns = [Gun(self.level, '09'), Gun(self.level, '13')]
+            self.guns[0].ammo *= 5
+            self.guns[1].ammo *= 5
         else:
             self.guns = [Gun(self.level, '02'), Gun(self.level, '15')]
         self.equipped_gun = self.guns[0]

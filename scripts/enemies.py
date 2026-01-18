@@ -461,7 +461,7 @@ class DockWorker(Enemy):
 
 class ExplosiveBot(Enemy):
     def __init__(self, level, pos):
-        super().__init__(level, '06 explosive bot', (34, 28), pos, 1.5, 50, (-6, -20))
+        super().__init__(level, '06 explosive bot', (34, 28), pos, 1.5, 70, (-6, -20))
         self.warnings = 0
         self.explosion = Animation('assets/sprites/misc/explosion2.png', 9, False, (128, 80))
         self.attack_sound = MISC_SFX['explosion 1']
@@ -470,7 +470,7 @@ class ExplosiveBot(Enemy):
 
     def draw(self):
         position = self.image_position()
-        if self.warnings < 3:
+        if self.warnings < 2:
             self.level.canvases[5].blit(self.display_image,
                                         (position[0] - self.level.camera.x, position[1] - self.level.camera.y))
         else:
@@ -505,7 +505,7 @@ class ExplosiveBot(Enemy):
             self.hit_player = False
             self.actions['attack'] = False
 
-        if self.warnings >= 3:
+        if self.warnings >= 2:
             self.hp = 1_000_000
             self.velocity[0] = 0
             self.explosion.update(self.level.game.delta)
